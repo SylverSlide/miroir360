@@ -79,41 +79,430 @@ const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { tablet, compact } = useBreakpoint();
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
-  const links = [["#concept","Le concept"],["#produit","Le produit"],["#avantages","Avantages"],["#versions","Versions"],["#presse","Presse"]];
-  const lStyle = { fontSize:"0.75rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#5A6570", textDecoration:"none", fontWeight:500, fontFamily:"'DM Sans',sans-serif" };
-  const gutter = tablet ? (compact ? "1rem" : "1.35rem") : "clamp(1.5rem, 5vw, 4rem)";
+
+  useEffect(() => {
+    if (!tablet || !open) return;
+
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [tablet, open]);
+
+  const links = [
+    ["#concept", "Le concept"],
+    ["#produit", "Le produit"],
+    ["#avantages", "Avantages"],
+    ["#versions", "Versions"],
+    ["#presse", "Presse"],
+  ];
+
+  const lStyle: CSSProperties = {
+    fontSize: "0.75rem",
+    letterSpacing: "0.12em",
+    textTransform: "uppercase",
+    color: "#5A6570",
+    textDecoration: "none",
+    fontWeight: 500,
+    fontFamily: "'DM Sans',sans-serif",
+    transition: "color 0.2s ease",
+  };
+
+  const gutter = tablet
+    ? compact
+      ? "1rem"
+      : "1.35rem"
+    : "clamp(1.5rem, 5vw, 4rem)";
+
   return (
     <>
-      <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:300, display:"flex", alignItems:"center", justifyContent:"space-between", paddingTop: tablet ? "max(1rem, env(safe-area-inset-top))" : "max(1.1rem, env(safe-area-inset-top))", paddingBottom: tablet ? "1rem" : "1.1rem", paddingLeft: `max(${gutter}, env(safe-area-inset-left))`, paddingRight: `max(${gutter}, env(safe-area-inset-right))`, background:(scrolled||open)?"rgba(243,246,249,0.97)":"transparent", backdropFilter:(scrolled||open)?"blur(16px)":"none", borderBottom:(scrolled||open)?"1px solid rgba(74,102,133,0.16)":"none", transition:"all 0.4s ease" }}>
-        <a href="#" style={{ fontFamily:"'Cormorant Garamond',Georgia,serif", fontSize: compact ? "1.25rem" : "1.4rem", fontWeight:600, letterSpacing:"0.1em", color:"#151D28", textDecoration:"none", minWidth:0 }}>
-          Miroir <span style={{ color:"#4A6685" }}>360°</span>
+      {tablet && (
+        <>
+          <div
+            onClick={() => setOpen(false)}
+            aria-hidden={!open}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 298,
+              background: "rgba(9, 14, 22, 0.32)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              opacity: open ? 1 : 0,
+              pointerEvents: open ? "auto" : "none",
+              transition: "opacity 0.28s ease",
+            }}
+          />
+
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation mobile"
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "min(88vw, 380px)",
+              zIndex: 299,
+              display: "flex",
+              flexDirection: "column",
+              paddingTop: "max(1rem, env(safe-area-inset-top))",
+              paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+              paddingLeft: `max(${compact ? "1rem" : "1.25rem"}, env(safe-area-inset-left))`,
+              paddingRight: `max(${compact ? "1rem" : "1.25rem"}, env(safe-area-inset-right))`,
+              background:
+                "linear-gradient(180deg, rgba(247,250,253,0.98) 0%, rgba(238,243,248,0.98) 100%)",
+              borderLeft: "1px solid rgba(74,102,133,0.14)",
+              boxShadow: "-24px 0 60px rgba(15, 21, 34, 0.16)",
+              transform: open ? "translateX(0)" : "translateX(104%)",
+              transition: "transform 0.34s cubic-bezier(0.22, 1, 0.36, 1)",
+              overflow: "auto",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "1rem",
+                marginBottom: "1.4rem",
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    fontSize: "0.62rem",
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    color: "#6B7785",
+                    fontFamily: "'DM Sans',sans-serif",
+                    marginBottom: "0.35rem",
+                  }}
+                >
+                  Navigation
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Cormorant Garamond',Georgia,serif",
+                    fontSize: "1.45rem",
+                    fontWeight: 600,
+                    color: "#151D28",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  Miroir <span style={{ color: "#4A6685" }}>360°</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Fermer le menu"
+                onClick={() => setOpen(false)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 14,
+                  border: "1px solid rgba(74,102,133,0.18)",
+                  background: "rgba(255,255,255,0.72)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  boxShadow: "0 8px 22px rgba(15,21,34,0.05)",
+                }}
+              >
+                <Icon name="close" size={20} color="#151D28" />
+              </button>
+            </div>
+
+            <div
+              style={{
+                height: 1,
+                background: "linear-gradient(90deg, rgba(74,102,133,0.18), rgba(74,102,133,0.04))",
+                marginBottom: "1.25rem",
+              }}
+            />
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+              {links.map(([href, label], i) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "1rem",
+                    textDecoration: "none",
+                    padding: "1rem 1rem",
+                    borderRadius: 18,
+                    background: "rgba(255,255,255,0.62)",
+                    border: "1px solid rgba(74,102,133,0.1)",
+                    boxShadow: "0 10px 24px rgba(15,21,34,0.04)",
+                    color: "#151D28",
+                    transition: "transform 0.2s ease, background 0.2s ease, border-color 0.2s ease",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.92)";
+                    e.currentTarget.style.borderColor = "rgba(74,102,133,0.2)";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = "none";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.62)";
+                    e.currentTarget.style.borderColor = "rgba(74,102,133,0.1)";
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.18rem" }}>
+                    <span
+                      style={{
+                        fontSize: "0.62rem",
+                        letterSpacing: "0.14em",
+                        textTransform: "uppercase",
+                        color: "#7A8795",
+                        fontFamily: "'DM Sans',sans-serif",
+                      }}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "'Cormorant Garamond',Georgia,serif",
+                        fontSize: "1.15rem",
+                        fontWeight: 500,
+                        color: "#151D28",
+                        lineHeight: 1.1,
+                      }}
+                    >
+                      {label}
+                    </span>
+                  </div>
+
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "rgba(74,102,133,0.08)",
+                      color: "#4A6685",
+                      fontSize: "1rem",
+                      flexShrink: 0,
+                    }}
+                  >
+                    →
+                  </span>
+                </a>
+              ))}
+            </div>
+
+            <div style={{ marginTop: "1.2rem" }}>
+              <a
+                href="#contact"
+                onClick={() => setOpen(false)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                  textAlign: "center",
+                  background: "#151D28",
+                  color: "#F3F6F9",
+                  padding: "1rem 1.4rem",
+                  borderRadius: 18,
+                  fontFamily: "'DM Sans',sans-serif",
+                  fontSize: "0.78rem",
+                  letterSpacing: "0.14em",
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  boxShadow: "0 16px 34px rgba(21, 29, 40, 0.22)",
+                  transition: "transform 0.2s ease, background 0.2s ease",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                  e.currentTarget.style.background = "#4A6685";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "none";
+                  e.currentTarget.style.background = "#151D28";
+                }}
+              >
+                Commander
+              </a>
+            </div>
+
+            <div
+              style={{
+                marginTop: "auto",
+                paddingTop: "1.3rem",
+              }}
+            >
+              <div
+                style={{
+                  height: 1,
+                  background: "linear-gradient(90deg, rgba(74,102,133,0.14), rgba(74,102,133,0.03))",
+                  marginBottom: "1rem",
+                }}
+              />
+              <div
+                style={{
+                  display: "grid",
+                  gap: "0.7rem",
+                }}
+              >
+                <a
+                  href="mailto:lemiroir360@gmail.com"
+                  style={{
+                    textDecoration: "none",
+                    color: "#5A6570",
+                    fontSize: "0.78rem",
+                    lineHeight: 1.5,
+                    fontFamily: "'DM Sans',sans-serif",
+                  }}
+                >
+                  lemiroir360@gmail.com
+                </a>
+                <a
+                  href="tel:+33612298992"
+                  style={{
+                    textDecoration: "none",
+                    color: "#5A6570",
+                    fontSize: "0.78rem",
+                    lineHeight: 1.5,
+                    fontFamily: "'DM Sans',sans-serif",
+                  }}
+                >
+                  06 12 29 89 92
+                </a>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 300,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingTop: tablet
+            ? "max(1rem, env(safe-area-inset-top))"
+            : "max(1.1rem, env(safe-area-inset-top))",
+          paddingBottom: tablet ? "1rem" : "1.1rem",
+          paddingLeft: `max(${gutter}, env(safe-area-inset-left))`,
+          paddingRight: `max(${gutter}, env(safe-area-inset-right))`,
+          background: scrolled || open ? "rgba(243,246,249,0.82)" : "transparent",
+          backdropFilter: scrolled || open ? "blur(18px)" : "none",
+          WebkitBackdropFilter: scrolled || open ? "blur(18px)" : "none",
+          borderBottom: scrolled || open ? "1px solid rgba(74,102,133,0.12)" : "none",
+          transition: "all 0.35s ease",
+        }}
+      >
+        <a
+          href="#"
+          style={{
+            fontFamily: "'Cormorant Garamond',Georgia,serif",
+            fontSize: compact ? "1.25rem" : "1.4rem",
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            color: "#151D28",
+            textDecoration: "none",
+            minWidth: 0,
+          }}
+        >
+          Miroir <span style={{ color: "#4A6685" }}>360°</span>
         </a>
+
         {tablet ? (
-          <button type="button" aria-expanded={open} aria-label={open ? "Fermer le menu" : "Ouvrir le menu"} onClick={() => setOpen(o=>!o)} style={{ background:"none", border:"none", cursor:"pointer", minWidth:44, minHeight:44, padding:10, display:"flex", alignItems:"center", justifyContent:"center", WebkitTapHighlightColor:"transparent" }}>
-            <Icon name={open?"close":"menu"} size={22} color="#151D28"/>
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            onClick={() => setOpen((o) => !o)}
+            style={{
+              width: 46,
+              height: 46,
+              borderRadius: 14,
+              background: open ? "rgba(74,102,133,0.14)" : "rgba(255,255,255,0.58)",
+              border: "1px solid rgba(74,102,133,0.18)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              WebkitTapHighlightColor: "transparent",
+              boxShadow: scrolled
+                ? "0 10px 24px rgba(15,21,34,0.08)"
+                : "0 8px 18px rgba(15,21,34,0.04)",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <Icon name={open ? "close" : "menu"} size={21} color="#151D28" />
           </button>
         ) : (
-          <div style={{ display:"flex", gap:"clamp(1rem, 2.5vw, 2.2rem)", alignItems:"center", flexWrap:"wrap", justifyContent:"flex-end" }}>
-            {links.map(([href,label]) => (
-              <a key={href} href={href} style={lStyle} onMouseOver={e=>e.currentTarget.style.color="#4A6685"} onMouseOut={e=>e.currentTarget.style.color="#5A6570"}>{label}</a>
+          <div
+            style={{
+              display: "flex",
+              gap: "clamp(1rem, 2.5vw, 2.2rem)",
+              alignItems: "center",
+              flexWrap: "wrap",
+              justifyContent: "flex-end",
+            }}
+          >
+            {links.map(([href, label]) => (
+              <a
+                key={href}
+                href={href}
+                style={lStyle}
+                onMouseOver={(e) => (e.currentTarget.style.color = "#4A6685")}
+                onMouseOut={(e) => (e.currentTarget.style.color = "#5A6570")}
+              >
+                {label}
+              </a>
             ))}
-            <a href="#contact" style={{ ...lStyle, background:"#151D28", color:"#F3F6F9", padding:"0.52rem 1.4rem", transition:"background 0.25s" }} onMouseOver={e=>e.currentTarget.style.background="#4A6685"} onMouseOut={e=>e.currentTarget.style.background="#151D28"}>Commander</a>
+            <a
+              href="#contact"
+              style={{
+                ...lStyle,
+                background: "#151D28",
+                color: "#F3F6F9",
+                padding: "0.52rem 1.4rem",
+                borderRadius: 999,
+                transition: "background 0.25s",
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.background = "#4A6685")}
+              onMouseOut={(e) => (e.currentTarget.style.background = "#151D28")}
+            >
+              Commander
+            </a>
           </div>
         )}
       </nav>
-      {tablet && open && (
-        <div style={{ position:"fixed", top:"calc(3.35rem + env(safe-area-inset-top))", left:0, right:0, zIndex:299, background:"rgba(243,246,249,0.98)", backdropFilter:"blur(16px)", borderBottom:"1px solid rgba(74,102,133,0.18)", display:"flex", flexDirection:"column", paddingTop:"0.5rem", paddingBottom:"1.4rem", paddingLeft: `max(${compact ? "1rem" : "1.35rem"}, env(safe-area-inset-left))`, paddingRight: `max(${compact ? "1rem" : "1.35rem"}, env(safe-area-inset-right))` }}>
-          {links.map(([href,label]) => (
-            <a key={href} href={href} onClick={()=>setOpen(false)} style={{ ...lStyle, padding:"0.85rem 0", borderBottom:"1px solid rgba(74,102,133,0.1)", color:"#151D28" }}>{label}</a>
-          ))}
-          <a href="#contact" onClick={()=>setOpen(false)} style={{ ...lStyle, background:"#151D28", color:"#F3F6F9", padding:"0.75rem 1.4rem", marginTop:"0.9rem", textAlign:"center" }}>Commander</a>
-        </div>
-      )}
     </>
   );
 };
